@@ -29,12 +29,21 @@ class IntroduceInterface(Ui_introduce, QWidget):
         w.exec()
 
     def setbpplayer(self, Bool):
+        # 此方法只在战队上场时调用，不需要检查战队未上场（上场战队为空）
+
         bpplayers = (self._parent.banpickInterface.player, self._parent.banpickInterface.player_2, self._parent.banpickInterface.player_3,
                      self._parent.banpickInterface.player_4)
 
-        name_list = self.refresh_player(self.main_combobox.currentText())
+        if self.main_team.text() != "当前无战队上场":
+            name_list = self.refresh_player(self.main_team.text())
+        else:
+            name_list = []
         name_list.insert(0, '')
-        sur_name_list = self.refresh_player(self.sub_combobox.currentText())
+
+        if self.sub_team.text() != "当前无战队上场":
+            sur_name_list = self.refresh_player(self.sub_team.text())
+        else:
+            sur_name_list = []
         sur_name_list.insert(0, '')
 
         for player in bpplayers:
@@ -59,16 +68,22 @@ class IntroduceInterface(Ui_introduce, QWidget):
 
     @pyqtSlot()
     def on_main_button_clicked(self):
+        teamname = self.main_combobox.currentText()
+        if teamname is None or teamname == "":
+            self.msg(_translate("library", "欸？马冬梅？"), _translate("library", "你没有选中要上场的战队！"),
+                     _translate("msgbox", "我知道了"))
+            return
         players = (self.main_player, self.main_player_2, self.main_player_3,
                    self.main_player_4, self.main_player_5, self.main_player_6)
-        self._parent.scoreInterface.table_score.setItem(0, 0, QTableWidgetItem(self.main_combobox.currentText()))
-        self._parent.scoreInterface.mainname.setText(self.main_combobox.currentText())
-        self.main_team.setText(self.main_combobox.currentText())
+        self.main_team.setText(teamname)
+
+        self._parent.scoreInterface.table_score.setItem(0, 0, QTableWidgetItem(teamname))
+        self._parent.scoreInterface.mainname.setText(teamname)
 
         for player in players:
             player.clear()
 
-        name_list = self.refresh_player(self.main_combobox.currentText())
+        name_list = self.refresh_player(teamname)
         name_list.insert(0, '')
 
         for player_widget in players:
@@ -81,16 +96,22 @@ class IntroduceInterface(Ui_introduce, QWidget):
 
     @pyqtSlot()
     def on_sub_button_clicked(self):
+        teamname = self.sub_combobox.currentText()
+        if teamname is None or teamname == "":
+            self.msg(_translate("library", "欸？马冬梅？"), _translate("library", "你没有选中要上场的战队！"),
+                     _translate("msgbox", "我知道了"))
+            return
         players = (self.sub_player, self.sub_player_2, self.sub_player_3,
                    self.sub_player_4, self.sub_player_5, self.sub_player_6)
-        self._parent.scoreInterface.table_score.setItem(1, 0, QTableWidgetItem(self.sub_combobox.currentText()))
-        self._parent.scoreInterface.subname.setText(self.sub_combobox.currentText())
-        self.sub_team.setText(self.sub_combobox.currentText())
+        self.sub_team.setText(teamname)
+
+        self._parent.scoreInterface.table_score.setItem(1, 0, QTableWidgetItem(teamname))
+        self._parent.scoreInterface.subname.setText(teamname)
 
         for player in players:
             player.clear()
 
-        name_list = self.refresh_player(self.sub_combobox.currentText())
+        name_list = self.refresh_player(teamname)
         name_list.insert(0, '')
 
         for player_widget in players:

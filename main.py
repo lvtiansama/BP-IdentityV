@@ -36,7 +36,7 @@ Maps = ['军工厂', '红教堂', '圣心医院', '永眠镇', '唐人街',
     '湖景村', '月亮河公园', '里奥的回忆',
     '白沙街疯人院', '闪金石窟', '不归林', '克雷伯格赛马场']
 
-Version = 'Alpha 1.0'
+Version = 'Alpha 1.0.1'
 
 app_name = "BP_Identity_3d"
 app_author = "Lvtiansama"

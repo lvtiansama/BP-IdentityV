@@ -6,7 +6,7 @@ import py7zr
 
 from PyQt6.QtCore import pyqtSlot, QCoreApplication
 from PyQt6.QtGui import QColor, QPixmap
-from PyQt6.QtWidgets import QWidget, QGraphicsDropShadowEffect, QFileDialog
+from PyQt6.QtWidgets import QWidget, QGraphicsDropShadowEffect, QFileDialog, QTableWidgetItem
 from qfluentwidgets import FluentIcon, setFont, InfoBarIcon, MessageBox
 
 from function import get_resource_path
@@ -43,6 +43,90 @@ class LibraryInterface(Ui_library, QWidget):
         w.buttonLayout.insertStretch(1)
         w.exec()
 
+    def upteam(self,teamname):
+        bpplayers = (self._parent.banpickInterface.player, self._parent.banpickInterface.player_2,
+                     self._parent.banpickInterface.player_3, self._parent.banpickInterface.player_4)
+        winplayers = (self._parent.championInterface.player, self._parent.championInterface.player_2,
+                      self._parent.championInterface.player_3,
+                      self._parent.championInterface.player_4, self._parent.championInterface.player_5,
+                      self._parent.championInterface.player_6)
+        if teamname == self._parent.introduceInterface.main_team.text():
+            players = (self._parent.introduceInterface.main_player, self._parent.introduceInterface.main_player_2, self._parent.introduceInterface.main_player_3,
+                       self._parent.introduceInterface.main_player_4, self._parent.introduceInterface.main_player_5, self._parent.introduceInterface.main_player_6)
+            for player in players:
+                player.clear()
+            self._parent.introduceInterface.main_team.setText(_translate("introduce", "当前无战队上场"))
+            self._parent.scoreInterface.table_score.setItem(0, 0, QTableWidgetItem(''))
+            self._parent.scoreInterface.mainname.setText(_translate("score", "主场"))
+            if self._parent.scoreInterface.radioButton.isChecked() == True:
+                self._parent.banpickInterface.player_5.clear()
+            else:
+                for player in bpplayers:
+                    player.clear()
+        if teamname == self._parent.introduceInterface.sub_team.text():
+            players = (self._parent.introduceInterface.sub_player, self._parent.introduceInterface.sub_player_2, self._parent.introduceInterface.sub_player_3,
+                       self._parent.introduceInterface.sub_player_4, self._parent.introduceInterface.sub_player_5, self._parent.introduceInterface.sub_player_6)
+            for player in players:
+                player.clear()
+            self._parent.introduceInterface.sub_team.setText(_translate("introduce", "当前无战队上场"))
+            self._parent.scoreInterface.table_score.setItem(1, 0, QTableWidgetItem(''))
+            self._parent.scoreInterface.mainname.setText(_translate("score", "客场"))
+            if self._parent.scoreInterface.radioButton.isChecked() == True:
+                for player in bpplayers:
+                    player.clear()
+            else:
+                self._parent.banpickInterface.player_5.clear()
+        if teamname == self._parent.championInterface.teamname.text():
+            self._parent.championInterface.teamname.setText(_translate("champion", "当前无战队上场"))
+            for player in winplayers:
+                player.clear()
+
+    # 当选手发生变更（删除新增）时调用
+    def upgamer(self,teamname):
+        bpplayers = (self._parent.banpickInterface.player, self._parent.banpickInterface.player_2,
+                     self._parent.banpickInterface.player_3,self._parent.banpickInterface.player_4)
+        winplayers = (self._parent.championInterface.player, self._parent.championInterface.player_2, self._parent.championInterface.player_3,
+                   self._parent.championInterface.player_4, self._parent.championInterface.player_5, self._parent.championInterface.player_6)
+        name_list = self.refresh_player(teamname,True)
+        name_list.insert(0, '')
+
+        if teamname == self._parent.introduceInterface.main_team.text():
+            players = (self._parent.introduceInterface.main_player, self._parent.introduceInterface.main_player_2, self._parent.introduceInterface.main_player_3,
+                       self._parent.introduceInterface.main_player_4, self._parent.introduceInterface.main_player_5, self._parent.introduceInterface.main_player_6)
+            for player in players:
+                player.clear()
+                for name in name_list:
+                    player.addItem(name)
+            if self._parent.scoreInterface.radioButton.isChecked() == True:
+                self._parent.banpickInterface.player_5.clear()
+                for name in name_list:
+                    self._parent.banpickInterface.player_5.addItem(name)
+            else:
+                for player in bpplayers:
+                    player.clear()
+                    for name in name_list:
+                        player.addItem(name)
+        if teamname == self._parent.introduceInterface.sub_team.text():
+            players = (self._parent.introduceInterface.sub_player, self._parent.introduceInterface.sub_player_2, self._parent.introduceInterface.sub_player_3,
+                       self._parent.introduceInterface.sub_player_4, self._parent.introduceInterface.sub_player_5, self._parent.introduceInterface.sub_player_6)
+            for player in players:
+                player.clear()
+                for name in name_list:
+                    player.addItem(name)
+            if self._parent.scoreInterface.radioButton.isChecked() == True:
+                for player in bpplayers:
+                    player.clear()
+                    for name in name_list:
+                        player.addItem(name)
+            else:
+                self._parent.banpickInterface.player_5.clear()
+                for name in name_list:
+                    self._parent.banpickInterface.player_5.addItem(name)
+        if teamname == self._parent.championInterface.teamname.text():
+            for player in winplayers:
+                player.clear()
+                for name in name_list:
+                    player.addItem(name)
 
     # 导出当前战队
     @pyqtSlot()
@@ -377,6 +461,13 @@ class LibraryInterface(Ui_library, QWidget):
         self.msg(_translate("library", "好耶"), _translate("library", f"成功导入了来自外部的 {len(json_files)}个战队 存档数据！"),
                  _translate("msgbox", "我知道了"))
         self.clear_bad_cache(cache_dir_path)
+
+
+        self._parent.close()
+        # 重新创建并显示新的窗口
+        self._parent.__init__()
+        self._parent.show()
+
         return
 
     def check_folders_and_json_files(self, directory):
@@ -577,9 +668,7 @@ class LibraryInterface(Ui_library, QWidget):
                     print(f"Error processing {entry.path}: {e}")
         self.refresh_player(self.team.currentText())
 
-    def refresh_player(self, teamname):
-        self.human_list.clear()
-        self.human_list.clearSelection()
+    def refresh_player(self, teamname ,Bool = False):
         # none好像是无效的，但是还是保留了
         if teamname is None or teamname == "":
             return
@@ -595,9 +684,13 @@ class LibraryInterface(Ui_library, QWidget):
             name_list = [player['name'] for player in data['player'] if 'name' in player]
         else:
             name_list = []
-
-        for name in name_list:
-            self.human_list.addItem(name)
+        if Bool == False:
+            self.human_list.clear()
+            self.human_list.clearSelection()
+            for name in name_list:
+                self.human_list.addItem(name)
+        elif Bool == True:
+            return name_list
 
     # 上传json
     def create_json_file(self, data, filename):
@@ -699,6 +792,7 @@ class LibraryInterface(Ui_library, QWidget):
             data['player'].append(new_player)
         self.create_json_file(data, os.path.join(data_dir, f"{teamname}.json"))
         self.refresh_player(self.team.currentText())
+        self.upgamer(teamname)
 
     # 上传战队数据
     @pyqtSlot()
@@ -762,8 +856,9 @@ class LibraryInterface(Ui_library, QWidget):
                     self.create_json_file(data, file_path)
                     self.refresh_player(teamname)
                     self.msg(_translate("library", "删除成功！"),
-                             _translate("library", f"{teamname} 选手已被删除"),
+                             _translate("library", f"{humanname} 选手已被删除"),
                              _translate("msgbox", "我知道了"))
+                    self.upgamer(teamname)
                     self.humanlogo.setPixmap(QPixmap(get_resource_path("data/空logo.png")))
                     self.humanlogo.scaledToWidth(100)
                 else:
@@ -798,6 +893,7 @@ class LibraryInterface(Ui_library, QWidget):
             self.msg(_translate("library", "删除成功！"),
                      _translate("library", f"{teamname} 战队的所有数据已被删除"),
                      _translate("msgbox", "我知道了"))
+            self.upteam(teamname)
             if self.team.currentText() == '':
                 self.teamlogo.setPixmap(QPixmap(get_resource_path("data/空logo.png")))
                 self.teamlogo.scaledToWidth(100)

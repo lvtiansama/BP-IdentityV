@@ -40,12 +40,33 @@ class ScoreInterface(Ui_score, QWidget):
         return name_list
 
     def setbpplayer(self, Bool):
+        main_bool = False
+        sub_bool = False
+        teamname_main = self._parent.introduceInterface.main_team.text()
+        teamname_sub = self._parent.introduceInterface.sub_team.text()
+        if teamname_main == "当前无战队上场":
+            self.msg(_translate("library", "非法操作警告！"), _translate("library", "主场战队未上场！"),
+                     _translate("msgbox", "我知道了"))
+            main_bool = True
+        elif teamname_sub == "当前无战队上场":
+            self.msg(_translate("library", "非法操作警告！"), _translate("library", "客场战队未上场！"),
+                     _translate("msgbox", "我知道了"))
+            sub_bool = True
+
         bpplayers = (self._parent.banpickInterface.player, self._parent.banpickInterface.player_2, self._parent.banpickInterface.player_3,
                      self._parent.banpickInterface.player_4)
 
-        name_list = self.refresh_player(self._parent.introduceInterface.main_combobox.currentText())
+        if main_bool == True:
+            name_list = []
+        else:
+            name_list = self.refresh_player(teamname_main)
         name_list.insert(0, '')
-        sur_name_list = self.refresh_player(self._parent.introduceInterface.sub_combobox.currentText())
+
+
+        if sub_bool == True:
+            sur_name_list = []
+        else:
+            sur_name_list = self.refresh_player(teamname_sub)
         sur_name_list.insert(0, '')
 
         for player in bpplayers:
